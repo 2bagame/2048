@@ -1,6 +1,6 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb",
+  "extends": "react-app",
   "rules": {
     "generator-star-spacing": [0],
     "consistent-return": [0],

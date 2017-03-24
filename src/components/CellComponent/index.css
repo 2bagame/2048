@@ -10,6 +10,8 @@
   font-size: 32px;
   color: white;
 
+  transition: all .3s;
+
   /* center text */
   display: flex;
   align-items: center;

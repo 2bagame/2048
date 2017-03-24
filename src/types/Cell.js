@@ -14,8 +14,8 @@ export default class Cell extends Record(defaultCell) {
     });
   }
 
-  setValue(value) {
-    this.set('value', value);
+  double() {
+    return this.set('value', this.getValue() * 2);
   }
 
   getValue() {
