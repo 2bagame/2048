@@ -3,3 +3,6 @@ html, body, :global(#root) {
   height: 100%;
 }
 
+*, *:before, *:after {
+  box-sizing: border-box;
+}
