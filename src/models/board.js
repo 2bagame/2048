@@ -71,12 +71,26 @@ export default {
           board: appendRandomToTop(movedBoard)
         }
       });
+    },
+
+    *setBoard(_, {select, put}) {
+      const board = yield select(state => state.board);
+      if (!hasMoreMoves(board)) {
+        alert('游戏结束');
+        yield put({
+          type: 'reset'
+        });
+      }
     }
   },
 
   reducers: {
     setBoard(_, {payload: {board}}) {
       return board;
+    },
+
+    reset() {
+      return initialBoard;
     }
   },
 };
@@ -197,4 +211,20 @@ function appendRandomToTop(board) {
 
 function genRandomCell() {
   return new Cell(2); // TODO: gen random
+}
+
+function hasMoreMoves(board) {
+  if (board.flatten(true).indexOf(null) !== -1) {
+    return true;
+  }
+  return board.some(hasMoveOnLine) ||
+    inverseBoard(board).some(hasMoveOnLine);
+}
+
+function hasMoveOnLine(line) {
+  const lineSeq = line.toSeq();
+  return lineSeq
+    .skipLast(1)
+    .zip(lineSeq.skip(1))
+    .some(([cell1, cell2]) => cell1.getValue() === cell2.getValue());
 }
