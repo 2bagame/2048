@@ -1,14 +1,85 @@
 import {List, Repeat, fromJS} from 'immutable';
 import compose from 'recompose/compose';
 import identity from 'lodash/identity';
+import random from 'lodash/random';
 import Cell from '../types/Cell';
 
 const initialBoard = fromJS([
-  [new Cell(), new Cell(), new Cell(), new Cell()],
-  [new Cell(), new Cell(), new Cell(), new Cell()],
-  [new Cell(), new Cell(), new Cell(), new Cell()],
-  [new Cell(), new Cell(), new Cell(), new Cell()],
+  [new Cell(), new Cell(), null, null],
+  [new Cell(), null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
 ]);
+
+export default {
+  namespace: 'board',
+
+  state: initialBoard,
+
+  effects: {
+    *moveLeft(_, {select, put}) {
+      const board = yield select(state => state.board);
+      const movedBoard = moveLeft(board);
+      if (board.equals(movedBoard)) {
+        return;
+      }
+      yield put({
+        type: 'setBoard',
+        payload: {
+          board: appendRandomToRight(movedBoard)
+        }
+      });
+    },
+
+    *moveUp(_, {select, put}) {
+      const board = yield select(state => state.board);
+      const movedBoard = moveUp(board);
+      if (board.equals(movedBoard)) {
+        return;
+      }
+      yield put({
+        type: 'setBoard',
+        payload: {
+          board: appendRandomToBottom(movedBoard)
+        }
+      });
+    },
+
+    *moveRight(_, {select, put}) {
+      const board = yield select(state => state.board);
+      const movedBoard = moveRight(board);
+      if (board.equals(movedBoard)) {
+        return;
+      }
+      yield put({
+        type: 'setBoard',
+        payload: {
+          board: appendRandomToLeft(movedBoard)
+        }
+      });
+    },
+
+    *moveDown(_, {select, put}) {
+      const board = yield select(state => state.board);
+      const movedBoard = moveDown(board);
+      if (board.equals(movedBoard)) {
+        return;
+      }
+      yield put({
+        type: 'setBoard',
+        payload: {
+          board: appendRandomToTop(movedBoard)
+        }
+      });
+    }
+  },
+
+  reducers: {
+    setBoard(_, {payload: {board}}) {
+      return board;
+    }
+  },
+};
 
 // square board implied
 function inverseBoard(board) {
@@ -78,28 +149,52 @@ function moveDown(board) {
   )(board);
 }
 
-export default {
-  namespace: 'board',
+function appendRandomToRight(board) {
+  const lastColumn = board.map(line => line.last());
+  const emptyIndexes = lastColumn
+    .map((cell, index) => cell ? -1 : index)
+    .filter(index => index !== -1);
 
-  state: initialBoard,
+  if (emptyIndexes.size === 0) {
+    return board;
+  }
 
-  effects: {},
+  const appendIndex = emptyIndexes.get(random(0, emptyIndexes.size - 1));
+  const cord = [appendIndex, board.size - 1];
 
-  reducers: {
-    moveLeft(board) {
-      return moveLeft(board);
-    },
+  console.assert(board.getIn(cord) === null,
+    'New cell should generate in empty place.',
+    cord,
+    'already has cell: ',
+    board.getIn(cord));
 
-    moveUp(board) {
-      return moveUp(board);
-    },
+  return board.setIn(cord, genRandomCell());
+}
 
-    moveRight(board) {
-      return moveRight(board);
-    },
+function appendRandomToBottom(board) {
+  return compose(
+    inverseBoard,
+    appendRandomToRight,
+    inverseBoard
+  )(board);
+}
 
-    moveDown(board) {
-      return moveDown(board);
-    },
-  },
-};
+function appendRandomToLeft(board) {
+  return compose(
+    mirrorBoard,
+    appendRandomToRight,
+    mirrorBoard
+  )(board);
+}
+
+function appendRandomToTop(board) {
+  return compose(
+    inverseBoard,
+    appendRandomToLeft,
+    inverseBoard
+  )(board);
+}
+
+function genRandomCell() {
+  return new Cell(2); // TODO: gen random
+}

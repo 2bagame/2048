@@ -18,13 +18,9 @@ function Board({board}) {
       left: x * (BOARD_SIZE / line.size),
       top: y * (BOARD_SIZE / board.size),
     };
-    let extraProps = {};
-    if (cell) {
-      extraProps.key = cell.getId();
-    }
-    return <CellComponent {...extraProps}
-                          cell={cell}
-                          style={cellStyle}/>;
+    return cell && <CellComponent key={cell.getId()}
+                                  cell={cell}
+                                  style={cellStyle}/>;
   }));
 
   return (
