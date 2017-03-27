@@ -224,7 +224,7 @@ function hasMoreMoves(board) {
 function hasMoveOnLine(line) {
   const lineSeq = line.toSeq();
   return lineSeq
-    .skipLast(1)
-    .zip(lineSeq.skip(1))
+    .butLast()
+    .zip(lineSeq.rest())
     .some(([cell1, cell2]) => cell1.getValue() === cell2.getValue());
 }
