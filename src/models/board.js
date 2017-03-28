@@ -96,7 +96,7 @@ export default {
 };
 
 // square board implied
-function inverseBoard(board) {
+function transposeBoard(board) {
   return board.withMutations(board => {
     for (let i = 0; i < board.size; ++i) {
       for (let j = i + 1; j < board.size; ++j) {
@@ -149,17 +149,17 @@ function moveRight(board) {
 
 function moveUp(board) {
   return compose(
-    inverseBoard,
+    transposeBoard,
     moveLeft,
-    inverseBoard
+    transposeBoard
   )(board);
 }
 
 function moveDown(board) {
   return compose(
-    inverseBoard,
+    transposeBoard,
     moveRight,
-    inverseBoard
+    transposeBoard
   )(board);
 }
 
@@ -187,9 +187,9 @@ function appendRandomToRight(board) {
 
 function appendRandomToBottom(board) {
   return compose(
-    inverseBoard,
+    transposeBoard,
     appendRandomToRight,
-    inverseBoard
+    transposeBoard
   )(board);
 }
 
@@ -203,9 +203,9 @@ function appendRandomToLeft(board) {
 
 function appendRandomToTop(board) {
   return compose(
-    inverseBoard,
+    transposeBoard,
     appendRandomToLeft,
-    inverseBoard
+    transposeBoard
   )(board);
 }
 
@@ -218,7 +218,7 @@ function hasMoreMoves(board) {
     return true;
   }
   return board.some(hasMoveOnLine) ||
-    inverseBoard(board).some(hasMoveOnLine);
+    transposeBoard(board).some(hasMoveOnLine);
 }
 
 function hasMoveOnLine(line) {
