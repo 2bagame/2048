@@ -1,2 +1,2 @@
-# dva-2048
-2048 using dvajs
+# 2048
+The first 2bagame game.
