@@ -1,8 +1,10 @@
-import {List, Repeat, fromJS} from 'immutable';
+import { List, Repeat, fromJS } from 'immutable';
 import compose from 'recompose/compose';
 import identity from 'lodash/identity';
 import random from 'lodash/random';
-import Cell from '../types/Cell';
+import delay from 'delay';
+import Cell from '../../types/Cell';
+import parseSteps from './parseSteps';
 
 const initialBoard = fromJS([
   [new Cell(), new Cell(), null, null],
@@ -17,7 +19,7 @@ export default {
   state: initialBoard,
 
   effects: {
-    *moveLeft(_, {select, put}) {
+    *moveLeft(_, { select, put }) {
       const board = yield select(state => state.board);
       const movedBoard = moveLeft(board);
       if (board.equals(movedBoard)) {
@@ -31,7 +33,7 @@ export default {
       });
     },
 
-    *moveUp(_, {select, put}) {
+    *moveUp(_, { select, put }) {
       const board = yield select(state => state.board);
       const movedBoard = moveUp(board);
       if (board.equals(movedBoard)) {
@@ -45,7 +47,7 @@ export default {
       });
     },
 
-    *moveRight(_, {select, put}) {
+    *moveRight(_, { select, put }) {
       const board = yield select(state => state.board);
       const movedBoard = moveRight(board);
       if (board.equals(movedBoard)) {
@@ -59,7 +61,7 @@ export default {
       });
     },
 
-    *moveDown(_, {select, put}) {
+    *moveDown(_, { select, put }) {
       const board = yield select(state => state.board);
       const movedBoard = moveDown(board);
       if (board.equals(movedBoard)) {
@@ -73,7 +75,7 @@ export default {
       });
     },
 
-    *setBoard(_, {select, put}) {
+    *setBoard(_, { select, put }) {
       const board = yield select(state => state.board);
       if (!hasMoreMoves(board)) {
         alert('游戏结束');
@@ -81,11 +83,19 @@ export default {
           type: 'reset'
         });
       }
+    },
+
+    *autoRun({ payload: { steps } }, { put, call }) {
+      const actions = parseSteps(steps);
+      for (let action of actions) {
+        yield put(action);
+        yield call(delay, 300);
+      }
     }
   },
 
   reducers: {
-    setBoard(_, {payload: {board}}) {
+    setBoard(_, { payload: { board } }) {
       return board;
     },
 

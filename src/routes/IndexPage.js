@@ -1,7 +1,8 @@
 import React from 'react';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import compose from 'recompose/compose';
 import withHandlers from 'recompose/withHandlers';
+import withState from 'recompose/withState';
 import EventListener from 'react-event-listener';
 import Board from '../components/Board';
 
@@ -39,23 +40,36 @@ function mapDispatchToProps(dispatch) {
       dispatch({
         type: 'board/moveDown'
       });
+    },
+    autoRun(steps) {
+      dispatch({
+        type: 'board/autoRun',
+        payload: {
+          steps
+        }
+      });
     }
   };
 }
 
-function IndexPage({board, handleKeyDown}) {
+function IndexPage({ board, handleKeyDown, steps, handleInputChange, handleAutoRunClick }) {
   return (
     <div>
       <EventListener target="window" onKeyDown={handleKeyDown}/>
       <Board board={board}/>
+      <label>
+        步骤 <input value={steps} onChange={handleInputChange} type="text"/>
+        <button type="button" onClick={handleAutoRunClick}>执行</button>
+      </label>
     </div>
   );
 }
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
+  withState('steps', 'setSteps', ''),
   withHandlers({
-    handleKeyDown: ({moveLeft, moveUp, moveRight, moveDown}) => (event) => {
+    handleKeyDown: ({ moveLeft, moveUp, moveRight, moveDown }) => (event) => {
       switch (event.keyCode) {
         case KEYS.LEFT:
           event.preventDefault();
@@ -75,6 +89,12 @@ export default compose(
           break;
         default:
       }
+    },
+    handleInputChange: ({ setSteps }) => (event) => {
+      setSteps(event.target.value);
+    },
+    handleAutoRunClick: ({ autoRun, steps }) => () => {
+      autoRun(steps);
     }
   })
 )(IndexPage);
